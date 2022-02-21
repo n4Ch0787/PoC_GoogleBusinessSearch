@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+    <head>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script src="https://maps.googleapis.com/maps/api/js?key={GOOGLE_API_KEY}&v=3.exp&libraries=places"></script>
+    </head>
+    <body>
+	<h1>Buscar Negocio en Google</h1><br>
+        <label for="autocomplete_google_maps">Negocio: </label>
+        <input id="autocomplete_google_maps" type="text" size="50">
+		<label for="place_search_field">CID: </label>
+        <input id="place_search_field" type="text" size="50">
+		<label for="place_search_fieldhex">CID Hex.: </label>
+        <input id="place_search_fieldhex" type="text" size="50">
+		<br>
+		
+		<p id="p1"></p>
+		<p id="cid"></p>
+		<p id="p2"></p>
+		<p id="cidhex"></p>
+		<p id="p3"></p>
+		<p id="p"></p>
+		
+		<button onclick="myFunction()">Abrir Negocio</button><br>
+
+        <script>
+            (function($){
+				var autocomplete;
+				 
+				 function dec2hex(str){ // .toString(16) only works up to 2^53
+					var dec = str.toString().split(''), sum = [], hex = [], i, s
+					while(dec.length){
+						s = 1 * dec.shift()
+						for(i = 0; s || i < sum.length; i++){
+							s += (sum[i] || 0) * 10
+							sum[i] = s % 16
+							s = (s - sum[i]) / 16
+						}
+					}
+					while(sum.length){
+						hex.push(sum.pop().toString(16))
+					}
+					return hex.join('')
+				}
+						
+				function initialize_google_autocomplete() {
+				  autocomplete = new google.maps.places.Autocomplete((document.getElementById("autocomplete_google_maps")));
+
+				  google.maps.event.addListener(autocomplete, "place_changed", function() {
+					putAddress();
+				  });
+
+				}
+
+				function putAddress() {
+					
+					var place = autocomplete.getPlace();
+
+					var cid = getParameterByName("cid", place.url);
+					var cidhex = dec2hex(cid);
+					if(cid && cid != ""){
+						$("#place_search_field").val(cid);
+						$("#place_search_fieldhex").val(cidhex);
+					}else{
+						$("#place_search_field").val("Sorry, Nothing Found. Try Again");
+					}
+
+				}	
+
+				function getParameterByName(name, url) {
+					if (!url) {
+					  url = window.location.href;
+					}
+					name = name.replace(/[\[\]]/g, "\\$&");
+					var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+						results = regex.exec(url);
+					if (!results) return null;
+					if (!results[2]) return '';
+					return decodeURIComponent(results[2].replace(/\+/g, " "));
+				}
+
+				initialize_google_autocomplete();
+			})(jQuery);
+			
+			
+			
+			function myFunction() {
+				var param0 = $("#autocomplete_google_maps").val();
+				var param1 = "http://www.google.com/search?q="+ param0 +"&ludocid=";
+				var param2 = "#lrd=0x0:0x";
+				var param3 = ",1";
+				var cid = $("#place_search_field").val();
+				var cidhex = $("#place_search_fieldhex").val();
+				
+			
+				var address = param1 + cid + param2 + cidhex + param3;
+				document.getElementById("p").innerHTML = address;
+				
+				address=unescape(encodeURIComponent(address));
+				
+				window.open(address);
+				var loc = address;
+				document.getElementById('myFrame').setAttribute('src', loc);
+			}
+
+        </script>
+		
+    </body>
+</html>
